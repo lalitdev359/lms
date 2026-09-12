@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@theme {
+  /* Surfaces */
+  --color-bg: #0a0d13;
+  --color-surface: #12161f;
+  --color-surface-2: #171d29;
+  --color-surface-3: #1e2532;
+  --color-border: #242b3a;
+  --color-border-soft: #1b2130;
+
+  /* Text */
+  --color-ink: #eceef4;
+  --color-ink-muted: #8b92a6;
+  --color-ink-faint: #5c6579;
+
+  /* Brand */
+  --color-accent: #7c6cf6;
+  --color-accent-soft: #2a2450;
+  --color-accent-ink: #ffffff;
+  --color-ember: #f2a340;
+  --color-ember-soft: #3a2c14;
+
+  /* Status */
+  --color-success: #48d597;
+  --color-success-soft: #133226;
+  --color-danger: #f2685f;
+  --color-danger-soft: #3a1c1c;
+
+  /* Type */
+  --font-display: "Space Grotesk", "Inter", sans-serif;
+  --font-sans: "Inter", sans-serif;
+
+  --radius-card: 0.85rem;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: white;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+/* Visible keyboard focus, kept subtle but real */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Thin, unobtrusive scrollbars that fit the dark surface */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-3) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border-radius: 999px;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise-in {
+  animation: rise-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
