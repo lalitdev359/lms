@@ -15,51 +15,92 @@ all wired end to end against a real database.
 - **Auth** — bcrypt password hashing + signed JWT session cookie (httpOnly),
   no third-party auth provider required
 
-## 1. Prerequisites
+There are two ways to run this: **Docker** (recommended — no local Node or
+Postgres install needed) or **manually** on your machine.
 
-- Node.js 20+
-- A running PostgreSQL server (local install, Docker, or a hosted instance)
+## Option A: Docker
 
-## 2. Install dependencies
-
-```bash
-npm install
-```
-
-## 3. Configure environment variables
-
-Copy the example file and fill in your own values:
+**Prerequisite:** Docker with Compose V2 (`docker compose version` should work;
+if you only have the older standalone `docker-compose`, upgrade first — this
+setup relies on `depends_on: condition: service_completed_successfully`,
+which standalone `docker-compose` v1 doesn't support).
 
 ```bash
-cp .env.example .env
+docker compose up --build
 ```
 
+This starts three things in order:
+
+1. **`db`** — Postgres 16, with a named volume so data survives restarts
+2. **`migrate`** — a one-off container that applies `schema.sql`, then exits
+   (safe to run repeatedly)
+3. **`app`** — the Next.js production build, started once `migrate` finishes
+
+Visit **http://localhost:3000**.
+
+Load demo data (users, courses, enrollments, progress) — run this once after
+the stack is up:
+
+```bash
+docker compose run --rm seed
 ```
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lms
+
+Everyday commands:
+
+```bash
+docker compose up -d          # start in the background
+docker compose logs -f app    # tail the app's logs
+docker compose down           # stop everything (keeps the Postgres volume)
+docker compose down -v        # stop and wipe the Postgres volume too
+docker compose run --rm seed  # reset demo data back to its original state
+```
+
+**Custom ports / secrets:** copy `.env.example` to `.env` in the project root
+— Compose reads it automatically — and adjust:
+
+```
 SESSION_SECRET=replace-with-a-long-random-string
+APP_PORT=3000
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=lms
 ```
 
-If you don't have Postgres running yet, the quickest path is Docker:
+`SESSION_SECRET` is the one you actually want to change for anything beyond
+local use — it signs the session cookie.
+
+## Option B: Run it manually
+
+**Prerequisites:** Node.js 20+ and a running PostgreSQL server.
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Configure environment variables
+cp .env.example .env
+# then edit .env — at minimum, point DATABASE_URL at your Postgres instance:
+#   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/lms
+#   SESSION_SECRET=replace-with-a-long-random-string
+
+# 3. Create the schema and load demo data
+npm run db:migrate   # applies src/db/schema.sql
+npm run db:seed      # wipes and re-seeds demo users, courses, and progress
+
+# 4. Run it
+npm run dev
+```
+
+Visit http://localhost:3000.
+
+If you don't have Postgres installed locally, the quickest way to get one
+running without the full Docker Compose setup above:
 
 ```bash
 docker run --name lms-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16
 docker exec -it lms-postgres psql -U postgres -c "CREATE DATABASE lms;"
 ```
-
-## 4. Create the schema and seed demo data
-
-```bash
-npm run db:migrate   # applies src/db/schema.sql
-npm run db:seed      # wipes and re-seeds demo users, courses, and progress
-```
-
-## 5. Run it
-
-```bash
-npm run dev
-```
-
-Visit http://localhost:3000.
 
 ## Demo accounts
 
@@ -103,6 +144,8 @@ src/
     schema.sql                        Full DDL
     migrate.ts / seed.ts              Scripts run via npm run db:migrate/seed
   proxy.ts                            Route protection (Next 16's renamed middleware)
+Dockerfile                            Multi-stage build: deps / builder / migrator / runner
+docker-compose.yml                    db + migrate + seed + app services
 ```
 
 ## How auth & access control work
@@ -135,3 +178,22 @@ src/
 | `npm run lint`        | ESLint                                        |
 | `npm run db:migrate`  | Apply `src/db/schema.sql`                     |
 | `npm run db:seed`     | Wipe and re-seed demo data                    |
+
+## Docker reference
+
+| Command                       | What it does                                        |
+|--------------------------------|------------------------------------------------------|
+| `docker compose up --build`    | Build images and start `db`, `migrate`, then `app`   |
+| `docker compose up -d`         | Same, detached                                       |
+| `docker compose run --rm seed` | Wipe and re-seed demo data                           |
+| `docker compose logs -f app`   | Tail the app container's logs                        |
+| `docker compose down`          | Stop containers, keep the Postgres volume             |
+| `docker compose down -v`       | Stop containers and delete the Postgres volume         |
+
+Why a build-time DB connection isn't needed: every page that reads from the
+database also reads the session cookie (`getSession()`), which makes Next
+treat the whole route as dynamic (`export const dynamic = "force-dynamic"`
+is set explicitly on each page as well, to be safe). So `next build` inside
+the Docker image never has to reach a live Postgres instance — only the
+`migrate` container and the running `app` container do, both over the
+Compose network.

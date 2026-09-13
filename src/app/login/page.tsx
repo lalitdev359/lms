@@ -4,6 +4,8 @@ import { AuthShell } from "@/components/landing/AuthShell";
 import { LoginForm } from "@/components/landing/LoginForm";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function LoginPage({
   searchParams,
 }: {

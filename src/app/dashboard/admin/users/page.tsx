@@ -2,6 +2,8 @@ import { getSession } from "@/lib/session";
 import { listUsers } from "@/lib/repos/users";
 import { AdminUsersTable } from "@/components/dashboard/AdminUsersTable";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminUsersPage() {
   const session = await getSession();
   const users = await listUsers();

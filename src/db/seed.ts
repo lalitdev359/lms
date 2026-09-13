@@ -2,7 +2,12 @@
  * Wipes and re-seeds the database with demo accounts and sample courses.
  * Run with: npm run db:seed
  */
-process.loadEnvFile?.(".env");
+try {
+  process.loadEnvFile?.(".env");
+} catch {
+  // No .env file — fine when DATABASE_URL is already set in the environment
+  // (e.g. inside Docker Compose).
+}
 
 import bcrypt from "bcryptjs";
 import { Pool } from "pg";
@@ -166,8 +171,8 @@ async function main() {
   const l7 = await insertLesson(mlData, "Exploring a raw dataset", "Before modeling anything, you need to understand what you're working with. We'll profile a dataset for missing values, outliers, and class imbalance using pandas.", 0, 15);
   const l8 = await insertLesson(mlData, "Cleaning and feature engineering", "Turning raw columns into model-ready features is where most of the accuracy gains actually come from. This lesson covers encoding, scaling, and building a couple of derived features from scratch.", 1, 17);
   const mlModel = await insertModule(mlCourse, "Model building", 1);
-  const l9 = await insertLesson(mlModel, "Choosing a baseline model", "A simple baseline tells you whether your fancy model is actually earning its complexity. We'll set one up and talk about when to stop there.", 0, 11);
-  const l10 = await insertLesson(mlModel, "Evaluating honestly", "Accuracy alone can be misleading. We'll cover precision, recall, and cross-validation, and build an evaluation harness you can reuse on future projects.", 1, 19);
+  await insertLesson(mlModel, "Choosing a baseline model", "A simple baseline tells you whether your fancy model is actually earning its complexity. We'll set one up and talk about when to stop there.", 0, 11);
+  await insertLesson(mlModel, "Evaluating honestly", "Accuracy alone can be misleading. We'll cover precision, recall, and cross-validation, and build an evaluation harness you can reuse on future projects.", 1, 19);
 
   const nextCourse = await insertCourse({
     instructorId: priya,
@@ -182,10 +187,10 @@ async function main() {
   });
   const nextBasics = await insertModule(nextCourse, "App Router basics", 0);
   const l11 = await insertLesson(nextBasics, "File-system routing", "The App Router maps folders to URLs and files like page.tsx and layout.tsx to what renders at each route. We'll build out a small route tree together.", 0, 10);
-  const l12 = await insertLesson(nextBasics, "Server and client components", "Understanding which parts of your UI run on the server versus the browser is the single most important mental model in modern Next.js. We'll draw the line clearly with examples.", 1, 14);
+  await insertLesson(nextBasics, "Server and client components", "Understanding which parts of your UI run on the server versus the browser is the single most important mental model in modern Next.js. We'll draw the line clearly with examples.", 1, 14);
   const nextData = await insertModule(nextCourse, "Data & auth", 1);
-  const l13 = await insertLesson(nextData, "Fetching data on the server", "Server components can talk to a database directly, no API layer required. We'll fetch and render real rows from Postgres.", 0, 13);
-  const l14 = await insertLesson(nextData, "Sessions with signed cookies", "We'll implement a lightweight auth flow using a signed JWT stored in an httpOnly cookie, and protect routes based on the session.", 1, 16);
+  await insertLesson(nextData, "Fetching data on the server", "Server components can talk to a database directly, no API layer required. We'll fetch and render real rows from Postgres.", 0, 13);
+  await insertLesson(nextData, "Sessions with signed cookies", "We'll implement a lightweight auth flow using a signed JWT stored in an httpOnly cookie, and protect routes based on the session.", 1, 16);
 
   const designCourse = await insertCourse({
     instructorId: priya,

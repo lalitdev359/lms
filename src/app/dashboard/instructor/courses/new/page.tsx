@@ -1,5 +1,7 @@
 import { NewCourseForm } from "@/components/dashboard/NewCourseForm";
 
+export const dynamic = "force-dynamic";
+
 export default function NewCoursePage() {
   return (
     <div className="px-5 md:px-10 py-8 md:py-10">

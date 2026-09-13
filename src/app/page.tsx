@@ -7,6 +7,8 @@ import { HowItWorks } from "@/components/landing/HowItWorks";
 import { ClosingCta } from "@/components/landing/ClosingCta";
 import { query } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 async function getMarketingStats() {
   const [{ count: courseCount }] = await query<{ count: string }>(
     "SELECT COUNT(*)::text AS count FROM courses WHERE published = true"

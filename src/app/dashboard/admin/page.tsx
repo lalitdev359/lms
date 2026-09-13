@@ -4,6 +4,8 @@ import { listAllCourses } from "@/lib/repos/courses";
 import { query } from "@/lib/db";
 import { StatCard, Badge } from "@/components/ui/Primitives";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   const [userCounts, courses, users] = await Promise.all([countUsersByRole(), listAllCourses(), listUsers()]);
   const [{ count: enrollmentCount }] = await query<{ count: string }>("SELECT COUNT(*)::text AS count FROM enrollments");

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { listAllCourses } from "@/lib/repos/courses";
 import { Badge, CourseCover } from "@/components/ui/Primitives";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminCoursesPage() {
   const courses = await listAllCourses();
 

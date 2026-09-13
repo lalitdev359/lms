@@ -5,6 +5,8 @@ import { countEnrollmentsForInstructor } from "@/lib/repos/enrollments";
 import { StatCard, EmptyState, Badge, CourseCover } from "@/components/ui/Primitives";
 import { LinkButton } from "@/components/ui/Button";
 
+export const dynamic = "force-dynamic";
+
 export default async function InstructorDashboardPage() {
   const session = await getSession();
   const [courses, totalStudents] = await Promise.all([

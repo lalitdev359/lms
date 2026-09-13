@@ -10,6 +10,8 @@ import { getCourseTree } from "@/lib/course-tree";
 import { getSession } from "@/lib/session";
 import { isEnrolled } from "@/lib/repos/enrollments";
 
+export const dynamic = "force-dynamic";
+
 export default async function CourseDetailPage({
   params,
 }: {
@@ -30,8 +32,8 @@ export default async function CourseDetailPage({
   const totalLessons = course.modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
   let firstIncompleteLessonId: string | null = null;
-  for (const module of course.modules) {
-    for (const lesson of module.lessons) {
+  for (const courseModule of course.modules) {
+    for (const lesson of courseModule.lessons) {
       if (!lesson.completed) {
         firstIncompleteLessonId = lesson.id;
         break;

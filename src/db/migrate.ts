@@ -2,7 +2,12 @@
  * Applies schema.sql to the database configured by DATABASE_URL.
  * Run with: npm run db:migrate
  */
-process.loadEnvFile?.(".env");
+try {
+  process.loadEnvFile?.(".env");
+} catch {
+  // No .env file — fine when DATABASE_URL is already set in the environment
+  // (e.g. inside Docker Compose).
+}
 
 import { readFileSync } from "node:fs";
 import path from "node:path";

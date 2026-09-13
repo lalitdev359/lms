@@ -10,6 +10,8 @@ import { LessonRow } from "@/components/landing/LessonRow";
 import { CompleteToggle } from "@/components/landing/CompleteToggle";
 import { Logo } from "@/components/ui/Logo";
 
+export const dynamic = "force-dynamic";
+
 export default async function LearnLessonPage({
   params,
 }: {

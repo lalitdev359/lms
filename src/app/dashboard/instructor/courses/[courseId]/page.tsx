@@ -4,6 +4,8 @@ import { getCourseTree } from "@/lib/course-tree";
 import { listRosterForCourse } from "@/lib/repos/enrollments";
 import { CourseManager } from "@/components/dashboard/CourseManager";
 
+export const dynamic = "force-dynamic";
+
 export default async function ManageCoursePage({
   params,
 }: {

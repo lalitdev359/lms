@@ -7,6 +7,8 @@ import { EmptyState } from "@/components/ui/Primitives";
 import { Input } from "@/components/ui/Field";
 import { listCategories, listPublishedCourses } from "@/lib/repos/courses";
 
+export const dynamic = "force-dynamic";
+
 export default async function CoursesPage({
   searchParams,
 }: {
