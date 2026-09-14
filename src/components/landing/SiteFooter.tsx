@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
+import { getSession } from "@/lib/session";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const session = await getSession();
+
   return (
     <footer className="mt-auto">
       <div className="mx-auto max-w-6xl px-5 md:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -14,9 +17,15 @@ export function SiteFooter() {
           <Link href="/courses" className="hover:text-ink transition-colors">
             Courses
           </Link>
-          <Link href="/login" className="hover:text-ink transition-colors">
-            Log in
-          </Link>
+          {session ? (
+            <Link href={`/dashboard/${session.role.toLowerCase()}`} className="hover:text-ink transition-colors">
+              Dashboard
+            </Link>
+          ) : (
+            <Link href="/login" className="hover:text-ink transition-colors">
+              Log in
+            </Link>
+          )}
         </div>
       </div>
     </footer>
