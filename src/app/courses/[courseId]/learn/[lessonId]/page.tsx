@@ -8,6 +8,7 @@ import { isEnrolled } from "@/lib/repos/enrollments";
 import { Badge, ProgressBar } from "@/components/ui/Primitives";
 import { LessonRow } from "@/components/landing/LessonRow";
 import { CompleteToggle } from "@/components/landing/CompleteToggle";
+import { LessonVideo } from "@/components/landing/LessonVideo";
 import { Logo } from "@/components/ui/Logo";
 
 export const dynamic = "force-dynamic";
@@ -104,18 +105,7 @@ export default async function LearnLessonPage({
           <h1 className="font-display text-2xl md:text-3xl tracking-tight mt-1.5">{lesson.title}</h1>
           <p className="mt-1.5 text-sm text-ink-faint">{lesson.duration_minutes} min</p>
 
-          {lesson.video_url ? (
-            <div className="mt-7 aspect-video rounded-card border border-border bg-surface-2 flex items-center justify-center">
-              <a
-                href={lesson.video_url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-sm text-accent hover:text-accent/80"
-              >
-                Watch video ↗
-              </a>
-            </div>
-          ) : null}
+          {lesson.video_url ? <LessonVideo url={lesson.video_url} /> : null}
 
           <div className="mt-7 text-[15px] leading-relaxed text-ink-muted whitespace-pre-line">
             {lesson.content || "This lesson doesn't have written content yet."}

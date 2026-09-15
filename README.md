@@ -70,6 +70,13 @@ POSTGRES_DB=lms
 `SESSION_SECRET` is the one you actually want to change for anything beyond
 local use — it signs the session cookie.
 
+**Troubleshooting:** if `docker compose run --rm seed` fails with something
+like `relation "lesson_progress" does not exist`, the schema hasn't been
+applied to this Postgres volume yet — it needs `migrate` to have run first,
+which normally happens automatically as a dependency. If it still happens
+(e.g. an older image was cached), just run `docker compose run --rm migrate`
+once before seeding.
+
 ## Option B: Run it manually
 
 **Prerequisites:** Node.js 20+ and a running PostgreSQL server.
