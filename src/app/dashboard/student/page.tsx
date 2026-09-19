@@ -41,7 +41,7 @@ export default async function StudentDashboardPage() {
               return (
                 <Link
                   key={e.id}
-                  href={`/courses/${e.course_id}`}
+                  href={`/courses/${e.slug}`}
                   className="flex gap-4 rounded-card border border-border bg-surface p-4 hover:border-ink-faint/40 transition-colors"
                 >
                   <CourseCover hue={e.cover_hue} className="h-20 w-20 rounded-lg shrink-0" />

@@ -3,7 +3,7 @@ import Link from "next/link";
 import clsx from "clsx";
 import { getSession } from "@/lib/session";
 import { getLessonWithCourse } from "@/lib/repos/lessons";
-import { getCourseTree } from "@/lib/course-tree";
+import { getCourseTreeBySlug } from "@/lib/course-tree";
 import { isEnrolled } from "@/lib/repos/enrollments";
 import { Badge, ProgressBar } from "@/components/ui/Primitives";
 import { LessonRow } from "@/components/landing/LessonRow";
@@ -16,25 +16,25 @@ export const dynamic = "force-dynamic";
 export default async function LearnLessonPage({
   params,
 }: {
-  params: Promise<{ courseId: string; lessonId: string }>;
+  params: Promise<{ slug: string; lessonId: string }>;
 }) {
-  const { courseId, lessonId } = await params;
+  const { slug, lessonId } = await params;
   const session = await getSession();
-  if (!session) redirect(`/login?next=/courses/${courseId}/learn/${lessonId}`);
-
-  const lesson = await getLessonWithCourse(lessonId);
-  if (!lesson || lesson.course_id !== courseId) notFound();
+  if (!session) redirect(`/login?next=/courses/${slug}/learn/${lessonId}`);
 
   const isStudent = session.role === "STUDENT";
-  const course = await getCourseTree(courseId, isStudent ? session.sub : undefined);
+  const course = await getCourseTreeBySlug(slug, isStudent ? session.sub : undefined);
   if (!course) notFound();
+
+  const lesson = await getLessonWithCourse(lessonId);
+  if (!lesson || lesson.course_id !== course.id) notFound();
 
   const isOwner = course.instructor_id === session.sub;
   const canPreview = isOwner || session.role === "ADMIN";
-  const enrolled = isStudent ? await isEnrolled(session.sub, courseId) : false;
+  const enrolled = isStudent ? await isEnrolled(session.sub, course.id) : false;
 
   if (!enrolled && !canPreview) {
-    redirect(`/courses/${courseId}`);
+    redirect(`/courses/${slug}`);
   }
 
   const flatLessons = course.modules.flatMap((m) => m.lessons);
@@ -54,7 +54,7 @@ export default async function LearnLessonPage({
             <Logo className="h-6 w-6" />
             <span className="font-display text-sm">Ridgeline</span>
           </Link>
-          <Link href={`/courses/${course.id}`} className="text-sm text-ink-muted hover:text-ink transition-colors">
+          <Link href={`/courses/${course.slug}`} className="text-sm text-ink-muted hover:text-ink transition-colors">
             ← {course.title}
           </Link>
           {isStudent ? (
@@ -84,7 +84,7 @@ export default async function LearnLessonPage({
                 {module.lessons.map((l) => (
                   <LessonRow
                     key={l.id}
-                    courseId={course.id}
+                    courseSlug={course.slug}
                     lessonId={l.id}
                     title={l.title}
                     durationMinutes={l.duration_minutes}
@@ -120,7 +120,7 @@ export default async function LearnLessonPage({
           <div className="mt-10 flex items-center justify-between gap-4 pt-6 border-t border-border-soft">
             {prevLesson ? (
               <Link
-                href={`/courses/${course.id}/learn/${prevLesson.id}`}
+                href={`/courses/${course.slug}/learn/${prevLesson.id}`}
                 className="text-sm text-ink-muted hover:text-ink transition-colors"
               >
                 ← {prevLesson.title}
@@ -130,13 +130,13 @@ export default async function LearnLessonPage({
             )}
             {nextLesson ? (
               <Link
-                href={`/courses/${course.id}/learn/${nextLesson.id}`}
+                href={`/courses/${course.slug}/learn/${nextLesson.id}`}
                 className={clsx("text-sm text-accent hover:text-accent/80 transition-colors")}
               >
                 {nextLesson.title} →
               </Link>
             ) : (
-              <Link href={`/courses/${course.id}`} className="text-sm text-accent hover:text-accent/80">
+              <Link href={`/courses/${course.slug}`} className="text-sm text-accent hover:text-accent/80">
                 Back to course overview →
               </Link>
             )}

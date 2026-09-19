@@ -80,7 +80,7 @@ export function CourseManager({ course, roster }: { course: CourseTree; roster: 
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href={`/courses/${course.id}`}
+            href={`/courses/${course.slug}`}
             className="text-sm text-ink-muted hover:text-ink transition-colors px-3 py-2"
           >
             View page

@@ -2,7 +2,7 @@ import Link from "next/link";
 import clsx from "clsx";
 
 export function LessonRow({
-  courseId,
+  courseSlug,
   lessonId,
   title,
   durationMinutes,
@@ -10,7 +10,7 @@ export function LessonRow({
   locked,
   active,
 }: {
-  courseId: string;
+  courseSlug: string;
   lessonId: string;
   title: string;
   durationMinutes: number;
@@ -49,5 +49,5 @@ export function LessonRow({
     return <div>{content}</div>;
   }
 
-  return <Link href={`/courses/${courseId}/learn/${lessonId}`}>{content}</Link>;
+  return <Link href={`/courses/${courseSlug}/learn/${lessonId}`}>{content}</Link>;
 }

@@ -5,7 +5,7 @@ import type { CourseCard as CourseCardData } from "@/lib/repos/courses";
 export function CourseCard({ course }: { course: CourseCardData }) {
   return (
     <Link
-      href={`/courses/${course.id}`}
+      href={`/courses/${course.slug}`}
       className="group block rounded-card border border-border bg-surface overflow-hidden transition-colors hover:border-ink-faint/40"
     >
       <CourseCover hue={course.cover_hue} className="h-32" />

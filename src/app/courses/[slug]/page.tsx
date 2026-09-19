@@ -6,7 +6,7 @@ import { CourseCover, Badge } from "@/components/ui/Primitives";
 import { LinkButton } from "@/components/ui/Button";
 import { LessonRow } from "@/components/landing/LessonRow";
 import { EnrollButton } from "@/components/landing/EnrollButton";
-import { getCourseTree } from "@/lib/course-tree";
+import { getCourseTreeBySlug } from "@/lib/course-tree";
 import { getSession } from "@/lib/session";
 import { isEnrolled } from "@/lib/repos/enrollments";
 
@@ -15,20 +15,20 @@ export const dynamic = "force-dynamic";
 export default async function CourseDetailPage({
   params,
 }: {
-  params: Promise<{ courseId: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { courseId } = await params;
+  const { slug } = await params;
   const session = await getSession();
   const isStudent = session?.role === "STUDENT";
 
-  const course = await getCourseTree(courseId, isStudent ? session.sub : undefined);
+  const course = await getCourseTreeBySlug(slug, isStudent ? session.sub : undefined);
   if (!course) notFound();
 
   const isOwner = session?.sub === course.instructor_id;
   const canPreview = isOwner || session?.role === "ADMIN";
   if (!course.published && !canPreview) notFound();
 
-  const enrolled = isStudent ? await isEnrolled(session.sub, courseId) : false;
+  const enrolled = isStudent ? await isEnrolled(session.sub, course.id) : false;
   const totalLessons = course.modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
   let firstIncompleteLessonId: string | null = null;
@@ -76,7 +76,7 @@ export default async function CourseDetailPage({
               <CourseCover hue={course.cover_hue} className="h-36" />
               <div className="p-5">
                 {!session ? (
-                  <LinkButton href={`/login?next=/courses/${course.id}`} size="lg" className="w-full">
+                  <LinkButton href={`/login?next=/courses/${course.slug}`} size="lg" className="w-full">
                     Log in to enroll
                   </LinkButton>
                 ) : isOwner || session.role === "ADMIN" ? (
@@ -90,7 +90,7 @@ export default async function CourseDetailPage({
                   </LinkButton>
                 ) : enrolled ? (
                   <LinkButton
-                    href={continueLessonId ? `/courses/${course.id}/learn/${continueLessonId}` : "#"}
+                    href={continueLessonId ? `/courses/${course.slug}/learn/${continueLessonId}` : "#"}
                     size="lg"
                     className="w-full"
                   >
@@ -122,7 +122,7 @@ export default async function CourseDetailPage({
                     {module.lessons.map((lesson) => (
                       <div key={lesson.id} className="px-1">
                         <LessonRow
-                          courseId={course.id}
+                          courseSlug={course.slug}
                           lessonId={lesson.id}
                           title={lesson.title}
                           durationMinutes={lesson.duration_minutes}
@@ -143,7 +143,7 @@ export default async function CourseDetailPage({
           ) : null}
           {!session ? (
             <p className="mt-6 text-sm text-ink-faint max-w-2xl">
-              <Link href={`/login?next=/courses/${course.id}`} className="text-accent hover:text-accent/80">
+              <Link href={`/login?next=/courses/${course.slug}`} className="text-accent hover:text-accent/80">
                 Log in
               </Link>{" "}
               to unlock the full curriculum.
