@@ -103,3 +103,10 @@ export async function countEnrollmentsForInstructor(instructorId: string): Promi
   );
   return Number(row?.count ?? 0);
 }
+
+export async function countEnrollmentsSince(date: Date): Promise<number> {
+  const row = await queryOne<{ count: string }>("SELECT COUNT(*)::text AS count FROM enrollments WHERE enrolled_at >= $1", [
+    date,
+  ]);
+  return Number(row?.count ?? 0);
+}

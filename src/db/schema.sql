@@ -23,9 +23,13 @@ CREATE TABLE IF NOT EXISTS courses (
   level          TEXT NOT NULL CHECK (level IN ('Beginner', 'Intermediate', 'Advanced')) DEFAULT 'Beginner',
   cover_hue      INTEGER NOT NULL DEFAULT floor(random() * 360),
   published      BOOLEAN NOT NULL DEFAULT false,
+  published_at   TIMESTAMPTZ,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Safe to re-run: adds the column for databases created before it existed.
+ALTER TABLE courses ADD COLUMN IF NOT EXISTS published_at TIMESTAMPTZ;
 
 CREATE TABLE IF NOT EXISTS modules (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),

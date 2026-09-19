@@ -7,11 +7,13 @@ import type { Role } from "@/lib/types";
 // page/route handler via getSession() + a database check where it matters —
 // this just keeps signed-out or wrong-role users from ever rendering a
 // dashboard shell.
-const ROLE_PREFIXES: Record<string, Role> = {
-  "/dashboard/student": "STUDENT",
-  "/dashboard/instructor": "INSTRUCTOR",
-  "/dashboard/admin": "ADMIN",
-};
+// Admins can reach instructor routes too (course management pages live
+// there) — everything else is exact-role only.
+const ROLE_ACCESS: { prefix: string; roles: Role[] }[] = [
+  { prefix: "/dashboard/student", roles: ["STUDENT"] },
+  { prefix: "/dashboard/instructor", roles: ["INSTRUCTOR", "ADMIN"] },
+  { prefix: "/dashboard/admin", roles: ["ADMIN"] },
+];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -29,11 +31,9 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const requiredRole = Object.entries(ROLE_PREFIXES).find(([prefix]) =>
-    pathname.startsWith(prefix)
-  )?.[1];
+  const allowedRoles = ROLE_ACCESS.find(({ prefix }) => pathname.startsWith(prefix))?.roles;
 
-  if (requiredRole && session.role !== requiredRole) {
+  if (allowedRoles && !allowedRoles.includes(session.role)) {
     return NextResponse.redirect(new URL(`/dashboard/${session.role.toLowerCase()}`, request.url));
   }
 

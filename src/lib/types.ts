@@ -26,6 +26,7 @@ export interface Course {
   level: Level;
   cover_hue: number;
   published: boolean;
+  published_at: string | null;
   created_at: string;
   updated_at: string;
 }

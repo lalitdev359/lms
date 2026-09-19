@@ -22,7 +22,15 @@ async function api(url: string, options?: RequestInit) {
   return data;
 }
 
-export function CourseManager({ course, roster }: { course: CourseTree; roster: RosterEntry[] }) {
+export function CourseManager({
+  course,
+  roster,
+  backHref = "/dashboard/instructor",
+}: {
+  course: CourseTree;
+  roster: RosterEntry[];
+  backHref?: string;
+}) {
   const router = useRouter();
   const [tab, setTab] = useState<"curriculum" | "settings" | "roster">("curriculum");
   const [busy, setBusy] = useState(false);
@@ -53,7 +61,7 @@ export function CourseManager({ course, roster }: { course: CourseTree; roster: 
     setBusy(true);
     try {
       await api(`/api/courses/${course.id}`, { method: "DELETE" });
-      router.push("/dashboard/instructor");
+      router.push(backHref);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete");
       setBusy(false);
@@ -62,7 +70,7 @@ export function CourseManager({ course, roster }: { course: CourseTree; roster: 
 
   return (
     <div className="px-5 md:px-10 py-8 md:py-10 max-w-4xl">
-      <Link href="/dashboard/instructor" className="text-sm text-ink-muted hover:text-ink transition-colors">
+      <Link href={backHref} className="text-sm text-ink-muted hover:text-ink transition-colors">
         ← All courses
       </Link>
 

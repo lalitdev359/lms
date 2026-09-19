@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { deleteUser, listUsers, updateUserRole } from "@/lib/repos/users";
+import { adminCreateUserSchema } from "@/lib/validators";
+import { deleteUser, listUsersWithStats, updateUserRole, createUser, findUserByEmail } from "@/lib/repos/users";
+import { hashPassword } from "@/lib/auth";
 import { requireSession, handleApiError, ApiError } from "@/lib/api-auth";
 
 const patchSchema = z.object({
@@ -11,8 +13,31 @@ const patchSchema = z.object({
 export async function GET() {
   try {
     await requireSession(["ADMIN"]);
-    const users = await listUsers();
+    const users = await listUsersWithStats();
     return NextResponse.json({ users });
+  } catch (err) {
+    return handleApiError(err);
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    await requireSession(["ADMIN"]);
+    const body = await request.json().catch(() => null);
+    const parsed = adminCreateUserSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid input" }, { status: 400 });
+    }
+
+    const { name, email, password, role } = parsed.data;
+    const existing = await findUserByEmail(email);
+    if (existing) {
+      return NextResponse.json({ error: "An account with that email already exists" }, { status: 409 });
+    }
+
+    const passwordHash = await hashPassword(password);
+    const user = await createUser({ name, email, passwordHash, role });
+    return NextResponse.json({ user }, { status: 201 });
   } catch (err) {
     return handleApiError(err);
   }

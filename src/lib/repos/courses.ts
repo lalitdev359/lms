@@ -69,6 +69,18 @@ export async function listAllCourses(): Promise<CourseCard[]> {
   );
 }
 
+export async function categoryBreakdown(): Promise<{ category: string; count: number }[]> {
+  return query<{ category: string; count: number }>(
+    "SELECT category, COUNT(*)::int AS count FROM courses GROUP BY category ORDER BY count DESC"
+  );
+}
+
+export async function listTopCoursesByEnrollment(limit = 5): Promise<CourseCard[]> {
+  return query<CourseCard>(`${CARD_SELECT} GROUP BY c.id, u.name ORDER BY enrollment_count DESC, c.created_at DESC LIMIT $1`, [
+    limit,
+  ]);
+}
+
 export async function listCategories(): Promise<string[]> {
   const rows = await query<{ category: string }>(
     "SELECT DISTINCT category FROM courses WHERE published = true ORDER BY category"
@@ -132,6 +144,10 @@ export async function updateCourse(
     fields.push(`${key} = $${params.length}`);
   }
   if (fields.length === 0) return getCourseById(id);
+
+  if (input.published === true) {
+    fields.push("published_at = now()");
+  }
 
   params.push(id);
   fields.push("updated_at = now()");

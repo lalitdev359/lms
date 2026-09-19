@@ -12,6 +12,13 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+export const adminCreateUserSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(80),
+  email: z.string().trim().toLowerCase().email("Enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72),
+  role: z.enum(["STUDENT", "INSTRUCTOR", "ADMIN"]),
+});
+
 export const courseSchema = z.object({
   title: z.string().trim().min(3).max(120),
   summary: z.string().trim().max(200).default(""),

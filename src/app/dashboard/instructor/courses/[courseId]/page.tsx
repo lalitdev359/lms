@@ -23,6 +23,7 @@ export default async function ManageCoursePage({
   }
 
   const roster = await listRosterForCourse(courseId);
+  const backHref = session.role === "ADMIN" ? "/dashboard/admin/courses" : "/dashboard/instructor";
 
-  return <CourseManager course={course} roster={roster} />;
+  return <CourseManager course={course} roster={roster} backHref={backHref} />;
 }
